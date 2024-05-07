@@ -5,10 +5,12 @@ import cross_icon from "../Assets/cross.png";
 import { useNavigate } from "react-router-dom";
 import VoiceRecording from "../Auth/VoiceRecording";
 import SubmitPlayButton from "../Miscellaneous/SubmitPlayButton";
-export const TicTacToe = () => {
+import Lobby from "./Lobby";
+export const TicTacToe = (roomID) => {
   // const delay = ms => new Promise(res => setTimeout(res, ms)); /* Delay use to ask server if it is player turn and update grid*/
-  const [roomID, setRoomID] = useState(null);
+  // const [roomID, setRoomID] = useState(null);
   const [gameMessage, setGameMessage] = useState("");
+  const [error, setError] =useState("")
   const [isReady, setIsReady] = useState(false);
   const [showHome, setShowHome] = useState(false);
   const navigate = useNavigate();
@@ -71,10 +73,11 @@ export const TicTacToe = () => {
       .then((res) => {
         console.log(res);
         /* Sets room ID to the id of the room the server put you in. */
-        setRoomID(res.roomID);
+        // setRoomID(res.roomID);
       });
   }
   async function moveAudio() {
+    setError("")
     if(userAudioAsBlob === null 
       //|| !playerTurn
       ){
@@ -110,6 +113,7 @@ export const TicTacToe = () => {
       else {
         console.log(res)
         setTranscription(res.transcription)
+        setError(res.message)
       }
     });
   }
@@ -134,7 +138,7 @@ export const TicTacToe = () => {
   /* TO DO: Currently resets all rooms to null. Does not work properly and should only reset the current room to play again. */
   function reset() {
     // Reset all states and call the reset endpoint
-    setRoomID(null);
+    // setRoomID(null);
     setGameMessage("");
     setIsReady(false);
     setGrid([
@@ -268,7 +272,6 @@ export const TicTacToe = () => {
       <button className="back-button" onClick={handleBack}>
         &lt;
       </button>
-
       <h1 className="title" ref={titleRef}>
         Tic Talk Toe
       </h1>
@@ -343,20 +346,21 @@ export const TicTacToe = () => {
         </div>
         <VoiceRecording setAudio={setUserAudioAsBlob}/>
         <div>{transcription}</div>
+        <div>{error}</div>
       </div>
       <div className="gameMessage">{gameMessage}</div>
 
 
-      <button className="game-button" onClick={reset}>
+      {/* <button className="game-button" onClick={reset}>
         Reset
       </button>
       <button className="game-button" onClick={joinGame}>
         Join Game
-      </button>
-      <button className="game-button" /*disabled={isReady}*/ onClick={startGame}>
+      </button> */}
+      {/* <button className="game-button" onClick={startGame}>
         Ready
-      </button>
-      <SubmitPlayButton onSubmit={moveAudio} status={status}/>
+      </button> */}
+      <button onClick={moveAudio}>Send</button>
     </div>
   );
 };

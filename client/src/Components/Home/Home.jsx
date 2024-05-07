@@ -11,11 +11,11 @@ const games = [
         imgSrc: tictacphoto, // Replace with actual image path
         playAction: () => console.log('Play TicTalk Toe') // Placeholder action
     },
-    {
-        name: 'Game 2',
-        imgSrc: '/path/to/game2/image', // Replace with actual image path
-        playAction: () => console.log('Play Game 2') // Placeholder action
-    },
+    // {
+    //     name: 'Game 2',
+    //     imgSrc: '/path/to/game2/image', // Replace with actual image path
+    //     playAction: () => console.log('Play Game 2') // Placeholder action
+    // },
 ];
 
 
