@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"; /* More info av
 import SignUp from './Components/Auth/SignUp.jsx';
 import VoiceRecording from './Components/Auth/VoiceRecording.jsx';
 import SubmitPlayButton from './Components/Miscellaneous/SubmitPlayButton.jsx';
+import { Game } from './Components/TicTacToe/Game.jsx';
 
 function App({onBack}) {
 
@@ -45,7 +46,7 @@ function App({onBack}) {
         <Route element={<Home/>} path="/" />
         <Route element={<Login/>} path="/login" />
         <Route element={<SignUp/>} path="/signup" />
-        <Route element= {<TicTacToe/>} path='/Tic-Talk-Toe'/>
+        <Route element= {<Game/>} path='/Tic-Talk-Toe'/>
         <Route element= {<VoiceRecording/>} path='/VoiceRecording'/>
         <Route element= {<SubmitPlayButton/>} path='/SubmitPlay'/>
       </Routes>

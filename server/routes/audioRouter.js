@@ -9,7 +9,7 @@ const storage = multer.memoryStorage();
 const {findPlayerRoom, processMove} = require("../modules/gameRouterFunctions");
 // Initialize Multer
 const upload = multer({ storage: storage });
-const convertAudioToMove = require("../modules/AudioTranscription");
+const convertTextToMove = require("../modules/AudioTranscription");
 const axios = require('axios');
 const {rooms} = require("../routes/gameRouter")
 const transcribeText = require('../audio/OpenAI-API')
@@ -29,8 +29,8 @@ router.post(
     }
     console.log(`Post /audio/move `);
     const transcribedText =await transcribeText(req.body.voiceUrl, req.file)
-    const move = await convertAudioToMove(req.body.voiceUrl, req.file)
-    console.log(move)
+    const move = await convertTextToMove(transcribedText)
+    console.log('Move is: ' + move)
     if (move === null) {
       console.log("Could not detect valid moves, try again");
       res

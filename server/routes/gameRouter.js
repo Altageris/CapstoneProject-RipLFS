@@ -43,6 +43,14 @@ router.get("/reset", function (req, res, next) {
 router.get("/join", async function (req, res, next) {
   routerFunction.join(req, res, rooms);
 });
+router.post("/join", async function (req, res, next) {
+  routerFunction.join(req, res, rooms);
+});
+router.get("/waitForPlayer", async function (req, res, next) {
+  console.log("GET /waitForPlayer")
+  routerFunction.waitForPlayer(req, res, rooms)
+
+});
 /* Route for client to set his status as ready. Once the two players are marked as ready, the game is created and can be played */
 router.get("/ready", async function (req, res, next) {
   const readyStatus = routerFunction.ready(req, res, rooms);

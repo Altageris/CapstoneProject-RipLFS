@@ -12,7 +12,6 @@ async function transcribeText(audioFileUrl, audio ){
 
   try {
 
-    console.log(audio)
     const audioFile = await OpenAI.toFile(Readable.from(audio.buffer), 'audio.mp3', {
       type: "audio/mpeg",
     });
@@ -31,7 +30,7 @@ async function transcribeText(audioFileUrl, audio ){
   });
  return result
 } catch(error){
-  return error
+  return ""
 }
  
 }
