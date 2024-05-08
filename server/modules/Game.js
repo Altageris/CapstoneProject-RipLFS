@@ -28,6 +28,13 @@ class Game {
         this.state = newState
     }
 
+    /*
+    * Correlates symbol with player url
+    */
+    // setPlayers(symbol, playerUrl){
+    //     this.state.players[symbol] = playerUrl
+    // }
+
     /**
      * Displays the Game class's grid 
      */

@@ -3,11 +3,40 @@ import userIcon from "../Assets/userIcon.png";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import recordingIcon from "../Assets/recording.png";
-import stopRecordingIcon from "../Assets/stopRecording.png"
+import stopRecordingIcon from "../Assets/stopRecording.png";
+import VoiceRecording from "./VoiceRecording";
 const SignUp = () => {
   const navigate = useNavigate();
   const [steps, setSteps] = useState(0);
-  const [isRecording, setRecording] = useState(false);
+  const [userAudioAsBlob, setUserAudioAsBlob] = useState(null);
+  const [message, setMessage] = useState("");
+  function sendVoice(data, username, gender) {
+    let formData = new FormData();
+    let file = new File([data.blob], "audio.mp3");
+    console.log(file);
+    formData.append("file", file);
+    formData.append("username", username);
+    formData.append("gender", gender);
+    fetch("http://localhost:3001/voice/register", {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      // headers: {
+      //   "Content-Type": `multipart/form-data`,
+      // },
+
+      body: formData,
+    });
+  }
+
+  async function formSubmit(event) {
+    event.preventDefault();
+    const data = new FormData(event.target);
+    const username = data.get("username");
+    if (userAudioAsBlob === null) {
+      setMessage("No voice data sent");
+      return;
+    }
+    sendVoice(userAudioAsBlob, username, "M");
+  }
   return (
     <div className="wrapper fadeInDown">
       {steps === 0 && (
@@ -57,35 +86,35 @@ const SignUp = () => {
               healing and forgiveness.
             </div>
           </div>
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              console.log(e);
+              formSubmit(e);
+            }}
+          >
             <input
               type="text"
               id="login"
               className="fadeIn second"
-              name="login"
+              name="username"
               placeholder="username"
             />
-            <div>
-              {isRecording === false && <img
-                className="recording"
-                src={recordingIcon}
-                alt="Recording Icon"
-                onClick={()=> setRecording(!isRecording)}
-              />}
-              {isRecording === true && <img
-                className="recording"
-                src={stopRecordingIcon}
-                alt="Stop recording Icon"
-                onClick={()=> setRecording(!isRecording)}
-
-              />}
-            </div>
+            <VoiceRecording setAudio={setUserAudioAsBlob} />
             <input type="submit" className="fadeIn fourth" value="Sign Up" />
+            <div className="error">{message}</div>
           </form>
+          <button
+            onClick={() => {
+              // console.log(audioRecorder.mediaRecorder);
+            }}
+          >
+            DEBUGGING
+          </button>
 
           {/* <!-- Remind Passowrd --> */}
           <div id="formFooter">
-            <a className="underlineHover" href="#">
+            <a className="underlineHover" href="google.com">
               Forgot Password?
             </a>
           </div>

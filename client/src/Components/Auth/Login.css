@@ -276,5 +276,9 @@ input[type=text]:placeholder {
   padding: 1rem;
 }
 .recording {
-  width: 96px;
+  width: 75px;
+}
+.error {
+  color: red;
+  font-size: small;
 }
