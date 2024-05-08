@@ -35,8 +35,8 @@ const Home = () => {
                             <button className="dropbtn">About</button>
                             <div className="dropdown-content">
                                 <a href="https://capstoneuno.s3.us-east-2.amazonaws.com/Capstone+Contents/Capstone+website+stuff/index.html">Meet the Team</a>
-                                <a href="https://www.google.com/">How it Works</a>
-                                <a href="https://www.google.com/">Contact Us</a>
+                                <a href="https://drive.google.com/file/d/1VJ6hEK6hFiG1ygcZUkZ9nP4sErJZrQOZ/view">How it Works</a>
+                                <a href="https://capstoneuno.s3.us-east-2.amazonaws.com/Capstone+Contents/Capstone+website+stuff/index.html">Contact Us</a>
                             </div>
                         </div>
                         <button className="sign-up-btn" onClick={()=> navigate('/signup')}>Sign Up</button>
