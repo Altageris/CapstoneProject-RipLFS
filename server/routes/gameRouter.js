@@ -74,6 +74,11 @@ router.get("/waitTurn", async function (req, res, next) {
     produceMessage(globalRoomId, 'key1', "Player " + potentialWinner + " Wins!")
   }
 });
+/* Route for client to ask for a rematch. Both players must agree to a rematch for a new game. */
+router.get("/rematch", function (req, res) {
+  routerFunction.rematch(req, res, rooms);
+});
+
 
 /* To do: Disconnect user after idle time so we can delete rooms.*/
 /* To do: Delete everyroom that have 0 players every 1 hour *

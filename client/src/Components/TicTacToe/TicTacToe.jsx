@@ -10,18 +10,19 @@ export const TicTacToe = (roomID) => {
   // const delay = ms => new Promise(res => setTimeout(res, ms)); /* Delay use to ask server if it is player turn and update grid*/
   // const [roomID, setRoomID] = useState(null);
   const [gameMessage, setGameMessage] = useState("");
-  const [error, setError] =useState("")
+  const [error, setError] = useState("");
   const [isReady, setIsReady] = useState(false);
   const [showHome, setShowHome] = useState(false);
   const navigate = useNavigate();
   const [userAudioAsBlob, setUserAudioAsBlob] = useState(null);
-  const [status, setStatus] = useState(null)
-  const [transcription, setTranscription] = useState("")
+  const [status, setStatus] = useState(null);
+  const [transcription, setTranscription] = useState("");
   const intervalRef = useRef(null); // Ref to hold the interval ID
   const onPlay = () => {
     setShowHome(true);
   };
   const [intervalID, setIntervalID] = useState(null);
+  const [rematchIntervalID, setRematchIntervalID] = useState(null);
   // let intervalID = null
   const [grid, setGrid] = useState([
     ["", "", ""] /*A0 A1 A2 */,
@@ -33,22 +34,35 @@ export const TicTacToe = (roomID) => {
     useState(false); /* Player 1 defaults to false*/
   /* Runs the waitForYourTurn Function every 5 sec. */
   // let intervalID = setInterval(winner === '' ? waitForYourTurn : null, 5000)
-
+  const [rematchRequested, setRematchRequested] = useState(false);
+  const [callWaitTurn, setCallWaitTurn] = useState(true)
   useEffect(() => {
-    if (roomID !== null && winner === "") {
+    if (callWaitTurn) {
       setIntervalID(
         // intervalID =
         setInterval(async () => {
           await waitForYourTurn();
-        }, 5000)
+        }, 2000)
       );
       console.log("Creating new IntervalID: " + intervalID);
     }
 
     console.log("Clearing interval ID: " + intervalID);
     clearInterval(intervalID);
-  }, [roomID, winner]);
+  }, [callWaitTurn]);
 
+  useEffect(()=> {
+    if(rematchRequested){
+      setRematchIntervalID(
+        // intervalID =
+        setInterval(async () => {
+          await handleRematchRequest();
+        }, 2000)
+      );
+  }
+  clearInterval(rematchIntervalID);
+    
+  }, [rematchRequested])
   useEffect(() => {
     // console.log(grid)
     // console.log(winner)
@@ -77,45 +91,47 @@ export const TicTacToe = (roomID) => {
       });
   }
   async function moveAudio() {
-    setError("")
-    if(userAudioAsBlob === null 
+    setError("");
+    if (
+      userAudioAsBlob === null
       //|| !playerTurn
-      ){
-        console.log('no audio')
-      return
+    ) {
+      console.log("no audio");
+      return;
     }
-    console.log(userAudioAsBlob)
+    console.log(userAudioAsBlob);
     let formData = new FormData();
     let file = new File([userAudioAsBlob], "audio.mp3", {
       type: "audio/mpeg",
     });
-    console.log(file)
+    console.log(file);
     formData.append("file", file);
-    formData.append("voiceUrl", URL.createObjectURL(userAudioAsBlob))
-    console.log("Sending audio to server")
+    formData.append("voiceUrl", URL.createObjectURL(userAudioAsBlob));
+    console.log("Sending audio to server");
     fetch("http://localhost:3001/audio/move", {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       body: formData,
-    }).then(res => res.json()).then((res)=> {
-      console.log(res)
-      if (res.isAccepted) {
-        console.log("Move accepted , should update grid");
-        console.log(res.grid);
-        setPlayerTurn(false);
-        setTranscription(res.transcription)
-        setGrid(res.grid);
-        if (res.winner !== "") {
-          setWinner(res.winner);
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+        if (res.isAccepted) {
+          console.log("Move accepted , should update grid");
+          console.log(res.grid);
+          setPlayerTurn(false);
+          setTranscription(res.transcription);
+          setGrid(res.grid);
+          if (res.winner !== "") {
+            setWinner(res.winner);
+          }
+
+          // waitForYourTurn();
+        } else {
+          console.log(res);
+          setTranscription(res.transcription);
+          setError(res.message);
         }
-        
-        waitForYourTurn();
-      }
-      else {
-        console.log(res)
-        setTranscription(res.transcription)
-        setError(res.message)
-      }
-    });
+      });
   }
 
   /* Runs after you joined a room. Sets the player status to ready. Once both players have set to ready, game will start. */
@@ -134,6 +150,14 @@ export const TicTacToe = (roomID) => {
         // setRoomID(res.roomID)
       });
   }
+
+  useEffect(() => {
+    return () => {
+      if (intervalID) {
+        clearInterval(intervalID);
+      }
+    };
+  }, [intervalID]);
 
   /* TO DO: Currently resets all rooms to null. Does not work properly and should only reset the current room to play again. */
   function reset() {
@@ -155,15 +179,54 @@ export const TicTacToe = (roomID) => {
     });
   }
 
+  const handleRematchRequest = async () => {
+    // API call to server to request rematch
+    const response = await fetch("http://localhost:3001/game/rematch/", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res)=> res.json()).then(res => {
+      /* This will start handleRematchRequest calls */
+      setRematchRequested(true);
+      setGameMessage(res.message);
+      /* This will restart waitTurn calls */
+    if(res.rematch){
+      setWinner(res.winner)
+      setGrid(res.grid)
+      setRematchRequested(false)
+      setCallWaitTurn(true)
+    }
+    });
+    // const data = await response.json();
+
+    // if (data.message === "Rematch started") {
+    //   // Rematch is agreed by both players, reset the board
+    //   resetBoard();
+    // } else {
+    //   // Waiting for the other player to agree to rematch
+    //   setGameMessage(data.message);
+    // }
+  };
+
+  const resetBoard = () => {
+    // Reset the board for a new game
+    setGrid([
+      ["", "", ""],
+      ["", "", ""],
+      ["", "", ""],
+    ]);
+    setWinner("");
+    setPlayerTurn(false); // or true, depending on who should start the new game
+    setGameMessage("");
+    setRematchRequested(false); // Reset rematch state
+  };
+
   // Function that runs on defined time interval to retrieve data changes from server, and decide whose turn it is
   async function waitForYourTurn() {
-    // if (roomID === null) {
-    //   console.log('Dont run, no roomID')
-    //   return
-    // }
-    if (winner !== "") {
-      console.log("Winner found, dont run again");
-      return;
+    if(winner !== ""){
+      setCallWaitTurn(false);
+      return
     }
     fetch("http://localhost:3001/game/waitTurn/", {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -176,6 +239,7 @@ export const TicTacToe = (roomID) => {
       .then(async (res) => {
         console.log(res);
         setGameMessage(res.message);
+        setCallWaitTurn(true)
         // setPlayerTurn(res.wait)
         if (res.grid) {
           setGrid(res.grid);
@@ -187,6 +251,7 @@ export const TicTacToe = (roomID) => {
         }
         if (res.winner) {
           setWinner(res.winner);
+         setCallWaitTurn(false)
         }
       });
   }
@@ -206,7 +271,7 @@ export const TicTacToe = (roomID) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ move: move, roomID: roomID, type: 'click' }),
+      body: JSON.stringify({ move: move, roomID: roomID, type: "click" }),
     })
       .then((res) => res.json())
       .then(async (res) => {
@@ -218,7 +283,7 @@ export const TicTacToe = (roomID) => {
           if (res.winner !== "") {
             setWinner(res.winner);
           }
-          waitForYourTurn();
+          // waitForYourTurn();
         }
       });
   };
@@ -229,39 +294,7 @@ export const TicTacToe = (roomID) => {
     navigate("/");
   };
 
-  // Function to wait for player's turn
-  async function waitForYourTurn() {
-    if (roomID === null || winner !== "") return; // If no roomID or winner found, return
-    // Fetch data from server
-    fetch("http://localhost:3001/game/waitTurn/", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then(async (res) => {
-        setGameMessage(res.message); // Set game message
-        if (res.grid) {
-          setGrid(res.grid); // Update grid if available
-        }
-        if (res.playerTurn) {
-          setPlayerTurn(res.playerTurn); // Set player's turn
-        }
-        if (res.winner) {
-          setWinner(res.winner); // Set winner if available
-        }
-      });
-  }
 
-  // Use effect to update game UI based on winner
-  useEffect(() => {
-    if (winner === "X") {
-      titleRef.current.innerHTML = "Winner:   <img src=" + cross_icon + ">";
-    } else if (winner === "O") {
-      titleRef.current.innerHTML = "Winner:   <img src=" + circle_icon + ">";
-    }
-  }, [winner]);
 
   /* TO DO: 
     Provide user feedback on what is going on. Currently only displays a message and requires user to go through the steps in order: Join game, then set ready.
@@ -344,12 +377,11 @@ export const TicTacToe = (roomID) => {
             </div>
           </div>
         </div>
-        <VoiceRecording setAudio={setUserAudioAsBlob}/>
+        <VoiceRecording setAudio={setUserAudioAsBlob} />
         <div>{transcription}</div>
         <div>{error}</div>
       </div>
       <div className="gameMessage">{gameMessage}</div>
-
 
       {/* <button className="game-button" onClick={reset}>
         Reset
@@ -357,9 +389,23 @@ export const TicTacToe = (roomID) => {
       <button className="game-button" onClick={joinGame}>
         Join Game
       </button> */}
-      {/* <button className="game-button" onClick={startGame}>
+      {/* /* <button className="game-button" onClick={startGame}>
         Ready
       </button> */}
+
+      {winner && !rematchRequested && (
+        <div>
+          <button className="game-button" onClick={handleRematchRequest}>
+            Rematch?
+          </button>
+        </div>
+      )}
+
+      {/* {rematchRequested && (
+        <div className="gameMessage">
+          Waiting for the other player to accept the rematch...
+        </div>
+      )} */}
       <button onClick={moveAudio}>Send</button>
     </div>
   );

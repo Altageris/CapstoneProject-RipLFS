@@ -86,13 +86,39 @@ function ready(req, res, rooms) {
     return room.roomId;
   }
   /* Any subsequent calls to /ready will return Game already started */
-  res.status(200).json({ message: "Game already started" });
+  res.status(200).json({message: "Game already started"})
+  }
+
+  function rematch(req, res, rooms) {
+    console.log("GET /rematch");
+
+    let player = req.headers.origin;
+    let room = findPlayerRoom(player, rooms);
+    if (room === undefined) {
+        res.status(401).json({ message: "Player not in a room" });
+        return;
+    }
+    const rematchStarted = room.handleRematchRequest(player);
+    if (rematchStarted) {
+        // res.status(200).json({ message: "Rematch started" });
+        res
+      .status(200)
+      .json({
+        message: "Rematch started, waitTurn should start running again",
+        rematch: true,
+        grid: room.game.state.grid,
+        winner: "",
+        roomID: room.roomID
+      });
+    } else {
+        res.status(200).json({ message: "Waiting for the other player for a rematch", rematch: false  });
+    }
 }
 
-function waitTurn(req, res, rooms) {
-  //console.log("GET /waitTurn")
-  let player = req.headers.origin;
-  let room = findPlayerRoom(player, rooms);
+  function waitTurn(req,res, rooms){
+    console.log("GET /waitTurn")
+  let player = req.headers.origin
+  let room = findPlayerRoom(player, rooms)
 
   /* If the player is not in a room, game cannot be played */
   if (room === undefined) {
@@ -113,6 +139,9 @@ function waitTurn(req, res, rooms) {
   /* Room.game.state.playerTurn is a boolean used to track whose turn it is. We use that boolean, turn it to either 0 / 1 which are the possibles
      indexes for the player, in order to determine whose turn it is. Client only knows whether it is his turn or not.  */
   let playerTurn = room.game.state.playerTurn ? 1 : 0;
+
+    
+  
   /* If the game is over, let the client know. Clients should stop any subsequent calls to this route. (TO DO) */
   if (room.game.state.isOver) {
     res
@@ -268,4 +297,5 @@ module.exports = {
   move,
   processMove,
   reset,
+  rematch
 };
