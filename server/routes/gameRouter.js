@@ -46,13 +46,14 @@ router.get("/join", async function (req, res, next) {
 router.post("/join", async function (req, res, next) {
   routerFunction.join(req, res, rooms);
 });
-router.get("/waitForPlayer", async function (req, res, next) {
+router.post("/waitForPlayer", async function (req, res, next) {
+  
   console.log("GET /waitForPlayer")
   routerFunction.waitForPlayer(req, res, rooms)
 
 });
 /* Route for client to set his status as ready. Once the two players are marked as ready, the game is created and can be played */
-router.get("/ready", async function (req, res, next) {
+router.post("/ready", async function (req, res, next) {
   const readyStatus = routerFunction.ready(req, res, rooms);
   let newGame = !(readyStatus === undefined)
   if (newGame && enableKafka) {
@@ -66,8 +67,8 @@ router.get("/ready", async function (req, res, next) {
    The idea is that every T time, client makes a call to this route in order to retrieve the current state of the game. 
    This route is also used after a user makes a move, in order to wait for his turn.
    The player turn is determined based on the index of the player inside the room. */
-router.get("/waitTurn", async function (req, res, next) {
-  console.log("GET /waitTurn")
+router.post("/waitTurn", async function (req, res, next) {
+  console.log("POST /waitTurn")
   potentialWinner = routerFunction.waitTurn(req, res, rooms)
 
   if(potentialWinner !== undefined && enableKafka) {
@@ -75,7 +76,7 @@ router.get("/waitTurn", async function (req, res, next) {
   }
 });
 /* Route for client to ask for a rematch. Both players must agree to a rematch for a new game. */
-router.get("/rematch", function (req, res) {
+router.post("/rematch", function (req, res) {
   routerFunction.rematch(req, res, rooms);
 });
 

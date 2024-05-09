@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import VoiceRecording from "../Auth/VoiceRecording";
 import SubmitPlayButton from "../Miscellaneous/SubmitPlayButton";
 import Lobby from "./Lobby";
-export const TicTacToe = (roomID) => {
+export const TicTacToe = ({roomID, username}) => {
   // const delay = ms => new Promise(res => setTimeout(res, ms)); /* Delay use to ask server if it is player turn and update grid*/
   // const [roomID, setRoomID] = useState(null);
   const [gameMessage, setGameMessage] = useState("");
@@ -106,6 +106,7 @@ export const TicTacToe = (roomID) => {
     });
     console.log(file);
     formData.append("file", file);
+    formData.append("username", username)
     formData.append("voiceUrl", URL.createObjectURL(userAudioAsBlob));
     console.log("Sending audio to server");
     fetch("http://localhost:3001/audio/move", {
@@ -182,10 +183,12 @@ export const TicTacToe = (roomID) => {
   const handleRematchRequest = async () => {
     // API call to server to request rematch
     const response = await fetch("http://localhost:3001/game/rematch/", {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({username: username})
+      
     }).then((res)=> res.json()).then(res => {
       /* This will start handleRematchRequest calls */
       setRematchRequested(true);
@@ -229,11 +232,12 @@ export const TicTacToe = (roomID) => {
       return
     }
     fetch("http://localhost:3001/game/waitTurn/", {
-      method: "GET", // *GET, POST, PUT, DELETE, etc.
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
 
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({username: username})
     })
       .then((res) => res.json())
       .then(async (res) => {
@@ -271,7 +275,7 @@ export const TicTacToe = (roomID) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ move: move, roomID: roomID, type: "click" }),
+      body: JSON.stringify({ move: move, roomID: roomID, type: "click", username: username }),
     })
       .then((res) => res.json())
       .then(async (res) => {
@@ -305,6 +309,7 @@ export const TicTacToe = (roomID) => {
       <button className="back-button" onClick={handleBack}>
         &lt;
       </button>
+      {/* <h1>{username}</h1> */}
       <h1 className="title" ref={titleRef}>
         Tic Talk Toe
       </h1>

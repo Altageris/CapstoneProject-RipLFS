@@ -13,6 +13,7 @@ const port = 3001;
 const cors = require("cors");
 const fs = require("fs");
 const enableKafka = false;
+const path = require('path');
 
 app.use(jsonParser);
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -54,6 +55,11 @@ if (enableKafka) {
 
 app.use("/voice", v2verifyRouter);
 
+app.use(express.static(path.join(__dirname, 'build')));
+
+app.get('/', function (req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 app.listen(port, () =>
   console.log("Example app is listening on port " + port + ".")
 );
