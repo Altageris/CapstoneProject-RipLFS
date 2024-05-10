@@ -17,7 +17,7 @@ const SignUp = () => {
     formData.append("file", file);
     formData.append("username", username);
     formData.append("gender", gender);
-    fetch("http://localhost:3001/voice/register", {
+    fetch(`${process.env.REACT_APP_SERVER_URL}/voice/register`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       // headers: {
       //   "Content-Type": `multipart/form-data`,

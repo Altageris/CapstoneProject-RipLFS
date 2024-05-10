@@ -15,7 +15,10 @@ function findPlayerRoom(player, rooms) {
   return rooms.find((room) => room.hasPlayer(player));
 }
 function join(req, res, rooms) {
-  let player = req.headers.origin;
+  // let player = req.headers.origin; 
+  // console.log(player)
+  // if(player=== undefined){
+    let player = req.body.username;
   let username = req.body.username;
   let isInRoom = findPlayerRoom(player, rooms);
   if (isInRoom !== undefined) {
@@ -39,7 +42,11 @@ function join(req, res, rooms) {
   res.status(200).json({ roomID: room.roomId });
 }
 function waitForPlayer(req, res, rooms) {
-  let player = req.headers.origin;
+  // console.log(req.body.username)
+  // let player = req.headers.origin;
+  //  if(player=== undefined){
+    let player = req.body.username
+  // };
   const room = findPlayerRoom(player, rooms);
   /* If the player is not in a room, game cannot be played */
   if (room === undefined) {
@@ -58,7 +65,8 @@ function waitForPlayer(req, res, rooms) {
 
 function ready(req, res, rooms) {
   console.log("GET /ready");
-  let player = req.headers.origin;
+  let player = req.body.username; 
+  // if(player=== undefined){player = req.body.username};
   /* Find player room */
   const room = findPlayerRoom(player, rooms);
   if (room === undefined) {
@@ -77,7 +85,7 @@ function ready(req, res, rooms) {
     res
       .status(200)
       .json({ message: "Request taken in account, waiting for other player" });
-    return;
+    return null;
   }
   /* If there is no game created yet, start one and inform clients */
   if (room.game === null) {
@@ -90,9 +98,9 @@ function ready(req, res, rooms) {
   }
 
   function rematch(req, res, rooms) {
-    console.log("GET /rematch");
-
-    let player = req.headers.origin;
+    console.log("POST /rematch");
+    let player = req.body.username;
+    //  if(player=== undefined){player = req.body.username};
     let room = findPlayerRoom(player, rooms);
     if (room === undefined) {
         res.status(401).json({ message: "Player not in a room" });
@@ -116,8 +124,9 @@ function ready(req, res, rooms) {
 }
 
   function waitTurn(req,res, rooms){
-    console.log("GET /waitTurn")
-  let player = req.headers.origin
+    console.log("POST /waitTurn")
+  let player = req.body.username; 
+  // if(player=== undefined){player = req.body.username}
   let room = findPlayerRoom(player, rooms)
 
   /* If the player is not in a room, game cannot be played */
@@ -185,7 +194,9 @@ function ready(req, res, rooms) {
 function processMove(move, rooms, req, res) {
   // console.log(`Post /moveALL `);
   // console.log(rooms);
-  let room = findPlayerRoom(req.headers.origin, rooms);
+  let player = req.body.username
+  let room = findPlayerRoom(player, rooms);
+  // let room = findPlayerRoom(req.headers.origin, rooms);
   /* Checks if client is inside a room */
   if (room === undefined) {
     console.log("Player not in a room");
@@ -242,7 +253,9 @@ function move(req, res, rooms) {
   // console.log(rooms);
   console.log(req.body);
   console.log(req.file);
-  let room = findPlayerRoom(req.headers.origin, rooms);
+  let player= req.body.username
+  let room = findPlayerRoom(player, rooms);
+  // let room = findPlayerRoom(req.headers.origin, rooms);
   /** Possible values 'click', 'audio' */
   let moveType = req.body.type;
   /* Checks if client is inside a room */
@@ -258,6 +271,7 @@ function move(req, res, rooms) {
   }
   let move =
     moveType === "audio" ? convertAudioToMove(req.body.file) : req.body.move;
+    console.log(move)
   if (move === null) {
     console.log("Could not detect valid moves, try again");
     res
@@ -273,7 +287,7 @@ function move(req, res, rooms) {
 
 function reset(req, res, rooms) {
   console.log("GET /reset");
-  const player = req.headers.origin;
+  const player = req.headers.origin; if(player=== undefined){player = req.body.username};
   const roomToReset = findPlayerRoom(player, rooms);
   if (roomToReset === undefined) {
     /* Player not in a room or Room does not exist*/

@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import "./Lobby.css";
-export const Lobby = ({roomID, setRoomID, next}) => {
+export const Lobby = ({roomID, setRoomID,username, setUsername,setFoeUsername, next}) => {
   const [players, setPlayers] = useState([
     // { name: "Tommy Galagher", status: "ready" },
     // { name: "Stefan Vilebrequin", status: "not ready" },
   ]);
   const [canStart, setCanStart] = useState(false)
   const [steps, setSteps] = useState(0);
-  const [username, setUsername] = useState('')
+  // const [username, setUsername] = useState('')
   const [intervalID, setIntervalID] = useState(null);
   const [message, setMessage] = useState('')
   useEffect(() => {
@@ -24,17 +24,26 @@ export const Lobby = ({roomID, setRoomID, next}) => {
   }, [players, roomID]);
   // Function to join a game room
   async function waitForPlayer(){
-    fetch("http://localhost:3001/game/waitForPlayer/", {
-      method: "GET", // *GET, POST, PUT, DELETE, etc.
+    fetch(`${process.env.REACT_APP_SERVER_URL}/game/waitForPlayer/`, {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
 
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({username:username})
     })
       .then((res) => res.json())
       .then(async (res) => {
         console.log(res);
         setPlayers(res.players)
+        console.log('Players is: ')
+        console.log(res.players)
+        let foeName = res.players.find((item) => item.username!== username)
+        if(foeName !== undefined){
+
+          console.log(foeName.username)
+          setFoeUsername(foeName.username)
+        }
         setCanStart(res.canStart)
         if(res.canStart){
             await allPlayersReady()
@@ -43,7 +52,7 @@ export const Lobby = ({roomID, setRoomID, next}) => {
       });
   }
   async function joinGame() {
-    await fetch("http://localhost:3001/game/join", {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/game/join`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       headers: {
         "Content-Type": "application/json",
@@ -62,11 +71,12 @@ export const Lobby = ({roomID, setRoomID, next}) => {
   /* Runs after you joined a room. Sets the player status to ready. Once both players have set to ready, game will start. */
   async function startGame(e) {
     e.target.classList.add("ready-clicked");
-    await fetch("http://localhost:3001/game/ready", {
-      method: "GET", // *GET, POST, PUT, DELETE, etc.
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/game/ready`, {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({username: username})
     })
       .then((res) => res.json())
       .then((res) => {
