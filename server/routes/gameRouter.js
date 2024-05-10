@@ -44,6 +44,7 @@ router.get("/join", async function (req, res, next) {
   routerFunction.join(req, res, rooms);
 });
 router.post("/join", async function (req, res, next) {
+  console.log("POST /join")
   routerFunction.join(req, res, rooms);
 });
 router.post("/waitForPlayer", async function (req, res, next) {

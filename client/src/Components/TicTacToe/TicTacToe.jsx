@@ -77,7 +77,7 @@ export const TicTacToe = ({roomID, username}) => {
 
   // Function to join a game room
   async function joinGame() {
-    await fetch("http://localhost:3001/game/join", {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/game/join`, {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
       headers: {
         "Content-Type": "application/json",
@@ -109,7 +109,7 @@ export const TicTacToe = ({roomID, username}) => {
     formData.append("username", username)
     formData.append("voiceUrl", URL.createObjectURL(userAudioAsBlob));
     console.log("Sending audio to server");
-    fetch("http://localhost:3001/audio/move", {
+    fetch(`${process.env.REACT_APP_SERVER_URL}/audio/move`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       body: formData,
     })
@@ -139,7 +139,7 @@ export const TicTacToe = ({roomID, username}) => {
   async function startGame(e) {
     e.target.classList.add("ready-clicked");
     setIsReady(true);
-    await fetch("http://localhost:3001/game/ready", {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/game/ready`, {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
       headers: {
         "Content-Type": "application/json",
@@ -175,14 +175,14 @@ export const TicTacToe = ({roomID, username}) => {
     setPlayerTurn(false);
     titleRef.current.innerHTML = "Tic Talk Toe";
 
-    fetch("http://localhost:3001/game/reset/", {
+    fetch(`${process.env.REACT_APP_SERVER_URL}/game/reset/`, {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
     });
   }
 
   const handleRematchRequest = async () => {
     // API call to server to request rematch
-    const response = await fetch("http://localhost:3001/game/rematch/", {
+    const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/game/rematch/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -231,7 +231,7 @@ export const TicTacToe = ({roomID, username}) => {
       setCallWaitTurn(false);
       return
     }
-    fetch("http://localhost:3001/game/waitTurn/", {
+    fetch(`${process.env.REACT_APP_SERVER_URL}/game/waitTurn/`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
 
       headers: {
@@ -267,7 +267,7 @@ export const TicTacToe = ({roomID, username}) => {
     /* Sets move to grid value */
     const move = e.target.getAttribute("value");
     /* Call to server to handle move */
-    fetch("http://localhost:3001/game/move/", {
+    fetch(`${process.env.REACT_APP_SERVER_URL}/game/move/`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       // mode: "cors", // no-cors, *cors, same-origin
       // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached

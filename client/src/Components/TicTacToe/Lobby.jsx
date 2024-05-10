@@ -24,7 +24,7 @@ export const Lobby = ({roomID, setRoomID,username, setUsername, next}) => {
   }, [players, roomID]);
   // Function to join a game room
   async function waitForPlayer(){
-    fetch("http://localhost:3001/game/waitForPlayer/", {
+    fetch(`${process.env.REACT_APP_SERVER_URL}/game/waitForPlayer/`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
 
       headers: {
@@ -44,7 +44,7 @@ export const Lobby = ({roomID, setRoomID,username, setUsername, next}) => {
       });
   }
   async function joinGame() {
-    await fetch("http://localhost:3001/game/join", {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/game/join`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +63,7 @@ export const Lobby = ({roomID, setRoomID,username, setUsername, next}) => {
   /* Runs after you joined a room. Sets the player status to ready. Once both players have set to ready, game will start. */
   async function startGame(e) {
     e.target.classList.add("ready-clicked");
-    await fetch("http://localhost:3001/game/ready", {
+    await fetch(`${process.env.REACT_APP_SERVER_URL}/game/ready`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       headers: {
         "Content-Type": "application/json",

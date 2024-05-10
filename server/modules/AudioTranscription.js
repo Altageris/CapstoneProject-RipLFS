@@ -6,7 +6,7 @@ const audioConversionValues = {
   A1: ["top", "upper middle", "A1", "A-1", "up", "center", "top center"],
   A2: ["top right", "upper right", "A2", "A-2", "up right"],
   B0: ["left", "center left", "B0","B-0", "Be Zero.", "middle left"],
-  B1: ["center", "middle", "B1","B-1", "Be One."],
+  B1: ["center", "middle", "B1","B-1", "Be One.", "Be One", "Bee One", "Bee One."],
   B2: ["right", "center right", "B2","B-2", "Be Two.", "middle right"],
   C0: ["bottom left", "lower left", "C0","C-0", 'See Zero.', "down left"],
   C1: ["bottom", "lower middle", "C1", "C-1", 'See One.',"low center", "down middle"],
@@ -26,7 +26,7 @@ async function convertTextToMove (transcribedText) {
         return null
       }
       rowValues.forEach((value)=> {
-        if(transcribedText.includes(value)){
+        if(transcribedText.toLowerCase().includes(value.toLowerCase())){
           wordMatched = value;
           numMatches ++;
         }
