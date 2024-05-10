@@ -12,7 +12,7 @@ const transcribeText = require("./audio/OpenAI-API");
 const port = 3001;
 const cors = require("cors");
 const fs = require("fs");
-const enableKafka = false;
+const enableKafka = true;
 
 app.use(jsonParser);
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,6 +22,8 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/game", gameRouter);
 app.use("/audio", audioRouter);
+const server = app.listen(port, () => console.log('Example app is listening on port ' + port +'.' ));
+
 
 // Kafka setup
 if (enableKafka) {
@@ -54,6 +56,6 @@ if (enableKafka) {
 
 app.use("/voice", v2verifyRouter);
 
-app.listen(port, () =>
-  console.log("Example app is listening on port " + port + ".")
-);
+// app.listen(port, () =>
+//   console.log("Example app is listening on port " + port + ".")
+// );

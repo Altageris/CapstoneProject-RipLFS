@@ -57,7 +57,7 @@ function waitForPlayer(req, res, rooms) {
 }
 
 function ready(req, res, rooms) {
-  console.log("GET /ready");
+  //console.log("GET /ready");
   let player = req.headers.origin;
   /* Find player room */
   const room = findPlayerRoom(player, rooms);
@@ -77,31 +77,33 @@ function ready(req, res, rooms) {
     res
       .status(200)
       .json({ message: "Request taken in account, waiting for other player" });
-    return;
+    return null;
   }
   /* If there is no game created yet, start one and inform clients */
   if (room.game === null) {
+    console.log('This is running')
     room.startGame();
     res.status(200).json({ message: "Game Started!" });
-    return room.roomId;
+    //console.log(room.roomID)
+    return room.roomID;
   }
   /* Any subsequent calls to /ready will return Game already started */
-  res.status(200).json({message: "Game already started"})
+  res.status(200).json({ message: "Game already started" })
+}
+
+function rematch(req, res, rooms) {
+  console.log("GET /rematch");
+
+  let player = req.headers.origin;
+  let room = findPlayerRoom(player, rooms);
+  if (room === undefined) {
+    res.status(401).json({ message: "Player not in a room" });
+    return;
   }
-
-  function rematch(req, res, rooms) {
-    console.log("GET /rematch");
-
-    let player = req.headers.origin;
-    let room = findPlayerRoom(player, rooms);
-    if (room === undefined) {
-        res.status(401).json({ message: "Player not in a room" });
-        return;
-    }
-    const rematchStarted = room.handleRematchRequest(player);
-    if (rematchStarted) {
-        // res.status(200).json({ message: "Rematch started" });
-        res
+  const rematchStarted = room.handleRematchRequest(player);
+  if (rematchStarted) {
+    // res.status(200).json({ message: "Rematch started" });
+    res
       .status(200)
       .json({
         message: "Rematch started, waitTurn should start running again",
@@ -110,13 +112,13 @@ function ready(req, res, rooms) {
         winner: "",
         roomID: room.roomID
       });
-    } else {
-        res.status(200).json({ message: "Waiting for the other player for a rematch", rematch: false  });
-    }
+  } else {
+    res.status(200).json({ message: "Waiting for the other player for a rematch", rematch: false });
+  }
 }
 
-  function waitTurn(req,res, rooms){
-    console.log("GET /waitTurn")
+function waitTurn(req, res, rooms) {
+  console.log("GET /waitTurn")
   let player = req.headers.origin
   let room = findPlayerRoom(player, rooms)
 
@@ -140,8 +142,8 @@ function ready(req, res, rooms) {
      indexes for the player, in order to determine whose turn it is. Client only knows whether it is his turn or not.  */
   let playerTurn = room.game.state.playerTurn ? 1 : 0;
 
-    
-  
+
+
   /* If the game is over, let the client know. Clients should stop any subsequent calls to this route. (TO DO) */
   if (room.game.state.isOver) {
     res
@@ -236,6 +238,8 @@ function processMove(move, rooms, req, res) {
     // room = null
     // rooms.splice(rooms.indexOf(room), 1)
   }
+
+  return returnValue.isAccepted
 }
 function move(req, res, rooms) {
   console.log(`Post /move `);
