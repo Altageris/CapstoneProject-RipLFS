@@ -1,5 +1,4 @@
 /** This file contains all the logic to transcribe text into acceptable values for playing the Tic Talk Toe game */
-const transcribeText = require('../audio/OpenAI-API')
 
 const audioConversionValues = {
   A0: ["top left", "upper left", "A0", "A-0", "up left"],
@@ -13,9 +12,6 @@ const audioConversionValues = {
   C2: ["bottom right", "lower right", "C2","C-2", 'See Two.', "down right"],
 };
 async function convertTextToMove (transcribedText) {
-    // let transcribedText = ""
-    // transcribedText = await transcribeText(audioUrl, audio)
-    // console.log(transcribedText)
     let matchedKey = null
     /** Find any of the audioConversionValues listed above */
     Object.keys(audioConversionValues).forEach((key) => {
@@ -33,7 +29,7 @@ async function convertTextToMove (transcribedText) {
       })
       /* A matching word was found, return the key. So if user says Lower middle, then the returned value would be C1*/
       if(numMatches > 0 ){
-        matchedKey = wordMatched
+        matchedKey = key
       }
     })
     return matchedKey

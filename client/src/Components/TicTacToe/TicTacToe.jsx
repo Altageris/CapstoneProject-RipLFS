@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import VoiceRecording from "../Auth/VoiceRecording";
 import SubmitPlayButton from "../Miscellaneous/SubmitPlayButton";
 import Lobby from "./Lobby";
-export const TicTacToe = ({roomID, username}) => {
+export const TicTacToe = ({ roomID, username, foeUsername }) => {
   // const delay = ms => new Promise(res => setTimeout(res, ms)); /* Delay use to ask server if it is player turn and update grid*/
   // const [roomID, setRoomID] = useState(null);
   const [gameMessage, setGameMessage] = useState("");
@@ -35,7 +35,7 @@ export const TicTacToe = ({roomID, username}) => {
   /* Runs the waitForYourTurn Function every 5 sec. */
   // let intervalID = setInterval(winner === '' ? waitForYourTurn : null, 5000)
   const [rematchRequested, setRematchRequested] = useState(false);
-  const [callWaitTurn, setCallWaitTurn] = useState(true)
+  const [callWaitTurn, setCallWaitTurn] = useState(true);
   useEffect(() => {
     if (callWaitTurn) {
       setIntervalID(
@@ -51,18 +51,17 @@ export const TicTacToe = ({roomID, username}) => {
     clearInterval(intervalID);
   }, [callWaitTurn]);
 
-  useEffect(()=> {
-    if(rematchRequested){
+  useEffect(() => {
+    if (rematchRequested) {
       setRematchIntervalID(
         // intervalID =
         setInterval(async () => {
           await handleRematchRequest();
         }, 2000)
       );
-  }
-  clearInterval(rematchIntervalID);
-    
-  }, [rematchRequested])
+    }
+    clearInterval(rematchIntervalID);
+  }, [rematchRequested]);
   useEffect(() => {
     // console.log(grid)
     // console.log(winner)
@@ -106,7 +105,7 @@ export const TicTacToe = ({roomID, username}) => {
     });
     console.log(file);
     formData.append("file", file);
-    formData.append("username", username)
+    formData.append("username", username);
     formData.append("voiceUrl", URL.createObjectURL(userAudioAsBlob));
     console.log("Sending audio to server");
     fetch(`${process.env.REACT_APP_SERVER_URL}/audio/move`, {
@@ -182,25 +181,29 @@ export const TicTacToe = ({roomID, username}) => {
 
   const handleRematchRequest = async () => {
     // API call to server to request rematch
-    const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/game/rematch/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({username: username})
-      
-    }).then((res)=> res.json()).then(res => {
-      /* This will start handleRematchRequest calls */
-      setRematchRequested(true);
-      setGameMessage(res.message);
-      /* This will restart waitTurn calls */
-    if(res.rematch){
-      setWinner(res.winner)
-      setGrid(res.grid)
-      setRematchRequested(false)
-      setCallWaitTurn(true)
-    }
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_SERVER_URL}/game/rematch/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: username }),
+      }
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        /* This will start handleRematchRequest calls */
+        setRematchRequested(true);
+        setGameMessage(res.message);
+        /* This will restart waitTurn calls */
+        if (res.rematch) {
+          setWinner(res.winner);
+          setGrid(res.grid);
+          setRematchRequested(false);
+          setCallWaitTurn(true);
+        }
+      });
     // const data = await response.json();
 
     // if (data.message === "Rematch started") {
@@ -227,9 +230,9 @@ export const TicTacToe = ({roomID, username}) => {
 
   // Function that runs on defined time interval to retrieve data changes from server, and decide whose turn it is
   async function waitForYourTurn() {
-    if(winner !== ""){
+    if (winner !== "") {
       setCallWaitTurn(false);
-      return
+      return;
     }
     fetch(`${process.env.REACT_APP_SERVER_URL}/game/waitTurn/`, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -237,13 +240,13 @@ export const TicTacToe = ({roomID, username}) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({username: username})
+      body: JSON.stringify({ username: username }),
     })
       .then((res) => res.json())
       .then(async (res) => {
         console.log(res);
         setGameMessage(res.message);
-        setCallWaitTurn(true)
+        setCallWaitTurn(true);
         // setPlayerTurn(res.wait)
         if (res.grid) {
           setGrid(res.grid);
@@ -255,7 +258,7 @@ export const TicTacToe = ({roomID, username}) => {
         }
         if (res.winner) {
           setWinner(res.winner);
-         setCallWaitTurn(false)
+          setCallWaitTurn(false);
         }
       });
   }
@@ -275,7 +278,12 @@ export const TicTacToe = ({roomID, username}) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ move: move, roomID: roomID, type: "click", username: username }),
+      body: JSON.stringify({
+        move: move,
+        roomID: roomID,
+        type: "click",
+        username: username,
+      }),
     })
       .then((res) => res.json())
       .then(async (res) => {
@@ -298,14 +306,12 @@ export const TicTacToe = ({roomID, username}) => {
     navigate("/");
   };
 
-
-
   /* TO DO: 
     Provide user feedback on what is going on. Currently only displays a message and requires user to go through the steps in order: Join game, then set ready.
     Need to separate in another page forcing the user to join a game first, then directing here to the lobby. */
 
   return (
-    <div className="container">
+    <div>
       <button className="back-button" onClick={handleBack}>
         &lt;
       </button>
@@ -313,105 +319,119 @@ export const TicTacToe = ({roomID, username}) => {
       <h1 className="title" ref={titleRef}>
         Tic Talk Toe
       </h1>
-      <div className="">
-        <div className="board">
-          <div className="row boxHeadersTopMargin">
-            <div className="boxHeaderTop">0</div>
-            <div className="boxHeaderTop">1</div>
-            <div className="boxHeaderTop">2</div>
-          </div>
-          <div className="row ">
-            <div className="col boxHeadersLeftMargin">
-              <div className="boxHeaderLeft">A</div>
-              <div className="boxHeaderLeft">B</div>
-              <div className="boxHeaderLeft">C</div>
+      <div className="gameCluster">
+        <div className="col-1">
+          <h1 className="username">{username}</h1>
+        </div>
+        <div className="col-2">
+          <div className="board">
+            <div className="row boxHeadersTopMargin">
+              <div className="boxHeaderTop">0</div>
+              <div className="boxHeaderTop">1</div>
+              <div className="boxHeaderTop">2</div>
             </div>
-            <div className="flex-wrap">
-              {grid.map((row, rowIndex) => {
-                // console.log(row)
-                let cellDivArr = grid[rowIndex].map((cell, columnIndex) => {
-                  let id = `box${rowIndex}${columnIndex}`;
-                  let rowValue;
-                  switch (rowIndex) {
-                    case 0:
-                      rowValue = "A";
-                      break;
+            <div className="row ">
+              <div className="col boxHeadersLeftMargin">
+                <div className="boxHeaderLeft">A</div>
+                <div className="boxHeaderLeft">B</div>
+                <div className="boxHeaderLeft">C</div>
+              </div>
+              <div className="flex-wrap">
+                {grid.map((row, rowIndex) => {
+                  // console.log(row)
+                  let cellDivArr = grid[rowIndex].map((cell, columnIndex) => {
+                    let id = `box${rowIndex}${columnIndex}`;
+                    let rowValue;
+                    switch (rowIndex) {
+                      case 0:
+                        rowValue = "A";
+                        break;
 
-                    case 1:
-                      rowValue = "B";
-                      break;
-                    case 2:
-                      rowValue = "C";
-                      break;
-                    default:
-                  }
-                  let cellValue;
-                  let cellIcon = "";
-                  if (grid[rowIndex][columnIndex] !== "") {
-                    if (grid[rowIndex][columnIndex] === "X") {
-                      cellIcon = <img alt="X" src={cross_icon} />;
-                    } else {
-                      cellIcon = <img alt="X" src={circle_icon} />;
+                      case 1:
+                        rowValue = "B";
+                        break;
+                      case 2:
+                        rowValue = "C";
+                        break;
+                      default:
                     }
-                  }
-                  const colValue = columnIndex % 3;
+                    let cellValue;
+                    let cellIcon = "";
+                    if (grid[rowIndex][columnIndex] !== "") {
+                      if (grid[rowIndex][columnIndex] === "X") {
+                        cellIcon = <img alt="X" src={cross_icon} />;
+                      } else {
+                        cellIcon = <img alt="X" src={circle_icon} />;
+                      }
+                    }
+                    const colValue = columnIndex % 3;
 
-                  cellValue = `${rowValue}${colValue}`;
-                  // console.log(cellValue)
+                    cellValue = `${rowValue}${colValue}`;
+                    // console.log(cellValue)
+                    return (
+                      <div
+                        className="boxes"
+                        id={id}
+                        value={cellValue}
+                        key={cellValue}
+                        onClick={(e) => {
+                          gridCellToggle(e, rowIndex, columnIndex);
+                        }}
+                      >
+                        {cellIcon}
+                      </div>
+                    );
+                  });
+
                   return (
-                    <div
-                      className="boxes"
-                      id={id}
-                      value={cellValue}
-                      key={cellValue}
-                      onClick={(e) => {
-                        gridCellToggle(e, rowIndex, columnIndex);
-                      }}
-                    >
-                      {cellIcon}
+                    <div className="row" key={rowIndex}>
+                      {cellDivArr}
                     </div>
                   );
-                });
-
-                return (
-                  <div className="row" key={rowIndex}>
-                    {cellDivArr}
-                  </div>
-                );
-              })}
+                })}
+              </div>
             </div>
           </div>
-        </div>
-        <VoiceRecording setAudio={setUserAudioAsBlob} />
-        <div>{transcription}</div>
-        <div>{error}</div>
-      </div>
-      <div className="gameMessage">{gameMessage}</div>
+          <div className="buttonCluster">
+            <VoiceRecording setAudio={setUserAudioAsBlob} />
+            <div>{transcription}</div>
+            <div>{error}</div>
+            <div className="gameMessage">{gameMessage}</div>
 
-      {/* <button className="game-button" onClick={reset}>
+            {/* <button className="game-button" onClick={reset}>
         Reset
       </button>
       <button className="game-button" onClick={joinGame}>
         Join Game
       </button> */}
-      {/* /* <button className="game-button" onClick={startGame}>
+            {/* /* <button className="game-button" onClick={startGame}>
         Ready
       </button> */}
 
-      {winner && !rematchRequested && (
-        <div>
-          <button className="game-button" onClick={handleRematchRequest}>
-            Rematch?
-          </button>
-        </div>
-      )}
+            {winner && !rematchRequested && (
+              <div>
+                <button className="game-button" onClick={handleRematchRequest}>
+                  Rematch?
+                </button>
+              </div>
+            )}
 
-      {/* {rematchRequested && (
+            {/* {rematchRequested && (
         <div className="gameMessage">
           Waiting for the other player to accept the rematch...
         </div>
       )} */}
-      <button onClick={moveAudio}>Send</button>
+            <button onClick={moveAudio}>Send</button>
+          </div>
+        </div>
+
+        <div className="col-3">
+          <h1 className="username">{foeUsername}</h1>
+        </div>
+        {/* </div> */}
+        {/* <div className="threeSection"> */}
+       
+      </div>
     </div>
   );
 };

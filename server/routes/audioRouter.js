@@ -19,7 +19,7 @@ const transcribeText = require('../audio/OpenAI-API')
 router.post(
   "/move",
   upload.single("file"),
-  async function (req, res, next) {
+  async function (req, res,  next) {
     console.log(rooms)
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -29,6 +29,7 @@ router.post(
     }
     console.log(`Post /audio/move `);
     const transcribedText =await transcribeText(req.body.voiceUrl, req.file)
+    // HERE
     const move = await convertTextToMove(transcribedText)
     console.log('Move is: ' + move)
     if (move === null) {

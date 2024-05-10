@@ -8,7 +8,6 @@ const v2verifyRouter = require("./routes/v2verifyRouter");
 const app = express();
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json();
-const transcribeText = require("./audio/OpenAI-API");
 const port = 3001;
 const cors = require("cors");
 const fs = require("fs");

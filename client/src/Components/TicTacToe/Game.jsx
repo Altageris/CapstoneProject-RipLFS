@@ -10,6 +10,7 @@ import { TicTacToe } from "./TicTacToe";
 export const Game = () => {
     const [roomID, setRoomID] = useState(null);
     const [username, setUsername]= useState('')
+    const [foeUsername, setFoeUsername]= useState('')
     const [steps, setSteps] = useState(0)
     function next () {
         console.log('Switching to tic tac toe')
@@ -20,8 +21,8 @@ export const Game = () => {
     return (
         <>
         {console.log(username)}
-        {steps === 0 && <Lobby roomID={roomID} setRoomID={setRoomID} username={username} setUsername={setUsername} next={next}/>}
-        {steps ===1 && <TicTacToe roomID={roomID} username={username}/>}
+        {steps === 0 && <Lobby roomID={roomID} setRoomID={setRoomID} username={username} setUsername={setUsername} setFoeUsername ={setFoeUsername} next={next}/>}
+        {steps ===1 && <TicTacToe roomID={roomID} username={username} foeUsername={foeUsername}/>}
         {/* <button onClick={()=> {
             console.log(roomID)
         }}>DEBUGGING</button> */}

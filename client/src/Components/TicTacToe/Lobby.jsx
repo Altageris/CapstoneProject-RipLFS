@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./Lobby.css";
-export const Lobby = ({roomID, setRoomID,username, setUsername, next}) => {
+export const Lobby = ({roomID, setRoomID,username, setUsername,setFoeUsername, next}) => {
   const [players, setPlayers] = useState([
     // { name: "Tommy Galagher", status: "ready" },
     // { name: "Stefan Vilebrequin", status: "not ready" },
@@ -36,6 +36,14 @@ export const Lobby = ({roomID, setRoomID,username, setUsername, next}) => {
       .then(async (res) => {
         console.log(res);
         setPlayers(res.players)
+        console.log('Players is: ')
+        console.log(res.players)
+        let foeName = res.players.find((item) => item.username!== username)
+        if(foeName !== undefined){
+
+          console.log(foeName.username)
+          setFoeUsername(foeName.username)
+        }
         setCanStart(res.canStart)
         if(res.canStart){
             await allPlayersReady()
