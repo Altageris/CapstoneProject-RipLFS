@@ -302,7 +302,7 @@ export const TicTacToe = ({ roomID, username, foeUsername }) => {
 
   // Function to handle back button click
   const handleBack = () => {
-    reset(); // Reset the game
+    // reset(); // Reset the game
     navigate("/");
   };
 

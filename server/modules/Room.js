@@ -51,7 +51,7 @@ class Room {
   // Start a new game
   startGame() {
     this.game = new Game();
-    this.status = "active";
+    this.status = "active"; 
     // Ensure to reset any rematch state
     // this.rematchRequested = [];
   }
