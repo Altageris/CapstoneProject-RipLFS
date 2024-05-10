@@ -85,7 +85,7 @@ function ready(req, res, rooms) {
     res
       .status(200)
       .json({ message: "Request taken in account, waiting for other player" });
-    return;
+    return null;
   }
   /* If there is no game created yet, start one and inform clients */
   if (room.game === null) {
@@ -271,6 +271,7 @@ function move(req, res, rooms) {
   }
   let move =
     moveType === "audio" ? convertAudioToMove(req.body.file) : req.body.move;
+    console.log(move)
   if (move === null) {
     console.log("Could not detect valid moves, try again");
     res

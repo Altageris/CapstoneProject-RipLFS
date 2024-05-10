@@ -57,7 +57,7 @@ router.post("/waitForPlayer", async function (req, res, next) {
 router.post("/ready", async function (req, res, next) {
   const readyStatus = routerFunction.ready(req, res, rooms);
   let newGame = !(readyStatus === undefined)
-  if (newGame && enableKafka) {
+  if (newGame && enableKafka && readyStatus !== null) {
     globalRoomId = readyStatus
     await createTopic(globalRoomId)
     consumeMessages(globalRoomId)
