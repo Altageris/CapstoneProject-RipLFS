@@ -12,7 +12,7 @@ const SignUp = () => {
   const [message, setMessage] = useState("");
   function sendVoice(data, username, gender) {
     let formData = new FormData();
-    let file = new File([data.blob], "audio.mp3");
+    let file = new File([data], "audio.mp3");
     console.log(file);
     formData.append("file", file);
     formData.append("username", username);
